@@ -1,14 +1,9 @@
-import { getEvent, registerForEvent, cancelRegistration, getVolunteerRegistrations } from '../services/events.js';
-import { getCurrentUser } from '../services/auth.js';
-import { SKILLS, getCategoryLabel, getCategoryIcon, getCategoryColor, formatDate, formatTime, getSkillLabel, getSkillIcon } from '../services/matching.js';
-import { showToast } from '../components/toast.js';
+import { getEvent } from '../services/events.js';
+import { getCategoryLabel, getCategoryIcon, getCategoryColor, formatDate, formatTime, getSkillLabel, getSkillIcon } from '../services/matching.js';
 import { navigate } from '../main.js';
 
 export async function renderEventDetails(eventId) {
   const content = document.getElementById('page-content');
-
-  const user = await getCurrentUser();
-  if (!user) { navigate('/'); return; }
 
   content.innerHTML = `<div class="loading-container"><div class="spinner"></div><span>Loading event...</span></div>`;
 
@@ -25,20 +20,10 @@ export async function renderEventDetails(eventId) {
     return;
   }
 
-  const isVolunteer = user.role === 'volunteer';
-  const isOrg = user.role === 'organization';
   const spotsLeft = event.capacity - event.spots_taken;
   const isFull = spotsLeft <= 0;
   const fillPct = Math.round((event.spots_taken / event.capacity) * 100);
   const catColor = event.is_emergency ? '#dc2626' : getCategoryColor(event.category);
-
-  let isRegistered = false;
-  let registrationId = null;
-  if (isVolunteer) {
-    const regs = await getVolunteerRegistrations(user.id);
-    const reg = regs.find(r => r.event_id === eventId);
-    if (reg) { isRegistered = true; registrationId = reg.id; }
-  }
 
   content.innerHTML = `
     ${event.is_emergency ? `
@@ -162,21 +147,9 @@ export async function renderEventDetails(eventId) {
               </div>
             </div>
 
-            ${isVolunteer ? `
-              <div id="register-btn-wrap">
-                ${renderRegisterButton(isRegistered, isFull, event.is_emergency)}
-              </div>
-              ${isRegistered ? `
-                <p style="font-size:12px;color:var(--color-primary);text-align:center;margin-top:8px;font-weight:500;">
-                  ✅ You're registered for this event
-                </p>
-              ` : ''}
-            ` : isOrg ? `
-              <p style="font-size:13px;color:var(--color-text-secondary);text-align:center;padding:12px;">
-                You are viewing this event as an organization.
-              </p>
-              <button class="btn btn-outline btn-full" id="manage-event-btn">Manage Event</button>
-            ` : ''}
+            <p style="font-size:13px;color:var(--color-text-secondary);text-align:center;padding:12px;">
+              Browse the details and contact the organization to volunteer.
+            </p>
 
             <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--color-border);">
               <div class="event-meta-item" style="margin-bottom:8px;">
@@ -199,11 +172,6 @@ export async function renderEventDetails(eventId) {
   `;
 
   document.getElementById('back-btn')?.addEventListener('click', () => navigate('/discovery'));
-  document.getElementById('manage-event-btn')?.addEventListener('click', () => navigate('/dashboard'));
-
-  if (isVolunteer) {
-    bindRegisterButton(eventId, user.id, isRegistered);
-  }
 }
 
 function renderRegisterButton(isRegistered, isFull, isEmergency) {
