@@ -1,8 +1,6 @@
 # Volo
 
-Volo is a Vite + HTML/CSS/vanilla JavaScript volunteer discovery app for finding local events and signing up to help.
-
-The dedicated event discovery page is available at `/events.html` and loads from Supabase when the Vite environment variables are configured.
+Volo is a Vite + HTML/CSS/vanilla JavaScript volunteer discovery app for finding local events and signing up to help. Event discovery is available at the `/discovery` route after signing in.
 
 ## Run locally
 

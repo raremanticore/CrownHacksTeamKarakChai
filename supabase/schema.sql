@@ -22,6 +22,9 @@ ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can read own row" ON public.users
   FOR SELECT USING (auth.uid() = id);
 
+CREATE POLICY "Users can create own row" ON public.users
+  FOR INSERT WITH CHECK (auth.uid() = id);
+
 CREATE POLICY "Users can update own row" ON public.users
   FOR UPDATE USING (auth.uid() = id);
 
@@ -71,6 +74,9 @@ CREATE POLICY "Orgs can read volunteer profiles" ON public.volunteer_profiles
 
 CREATE POLICY "Volunteers update own profile" ON public.volunteer_profiles
   FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Volunteers create own profile" ON public.volunteer_profiles
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 -- ── Events ────────────────────────────────────────────────────────────────────
 

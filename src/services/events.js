@@ -18,9 +18,13 @@ export async function getEvents(filters = {}) {
   if (filters.isEmergency) q = q.eq('is_emergency', true);
   if (filters.category && filters.category !== 'all') q = q.eq('category', filters.category);
   if (filters.search) q = q.ilike('title', `%${filters.search}%`);
+  if (filters.location) q = q.ilike('location', `%${filters.location}%`);
 
   const { data, error } = await q.order('date', { ascending: true });
-  if (error) return [];
+  if (error) {
+    console.error('VOLO: Unable to load events from Supabase.', error);
+    throw new Error(error.message);
+  }
   return (data || []).map(e => ({ ...e, organization_name: e.organizations?.name }));
 }
 

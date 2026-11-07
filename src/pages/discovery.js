@@ -108,7 +108,22 @@ async function loadEvents() {
     grid.innerHTML = `<div class="loading-container"><div class="spinner"></div><span>Loading events...</span></div>`;
   }
 
-  allEvents = await getEvents(filters);
+  try {
+    allEvents = await getEvents(filters);
+  } catch (error) {
+    allEvents = [];
+    if (grid) {
+      grid.innerHTML = `
+        <div class="empty-state" style="grid-column:1/-1;">
+          <div class="empty-state-icon">⚠️</div>
+          <h3>Unable to load events</h3>
+          <p>${escapeHtml(error.message || 'Please try again.')}</p>
+          <button class="btn btn-primary" id="retry-events">Try Again</button>
+        </div>
+      `;
+      document.getElementById('retry-events')?.addEventListener('click', loadEvents);
+    }
+  }
 
   if (grid) {
     grid.innerHTML = '';
@@ -197,4 +212,8 @@ function clearFilters() {
   document.querySelector('[data-category="all"]')?.classList.add('active');
   document.getElementById('emergency-filter')?.classList.remove('active');
   loadEvents();
+}
+
+function escapeHtml(value) {
+  return String(value || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }

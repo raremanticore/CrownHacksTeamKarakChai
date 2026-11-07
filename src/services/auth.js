@@ -10,27 +10,24 @@ export async function signUp({ email, password, full_name, role, location, descr
   }
 
   const sb = getSupabase();
-  const { data, error } = await sb.auth.signUp({ email, password });
+  const profile = { full_name, role, location, description, skills, interests, availability };
+  const { data, error } = await sb.auth.signUp({
+    email,
+    password,
+    options: { data: profile },
+  });
   if (error) return { error: error.message };
+  if (!data.user) return { error: 'Supabase did not create the account.' };
 
-  const userId = data.user.id;
-  await sb.from('users').insert({ id: userId, full_name, email, role, location });
-
-  if (role === 'organization') {
-    await sb.from('organizations').insert({
-      user_id: userId, name: full_name, description: description || '', location, contact_email: email,
-    });
-  } else {
-    await sb.from('volunteer_profiles').insert({
-      user_id: userId,
-      skills: skills || [],
-      interests: interests || [],
-      availability: availability || '',
-      confirmed_hours: 0,
-    });
+  if (data.session) {
+    const profileResult = await createProfileRecords(sb, data.user, profile);
+    if (profileResult.error) return profileResult;
   }
 
-  return { user: { id: userId, full_name, email, role, location } };
+  return {
+    user: { id: data.user.id, full_name, email, role, location },
+    needsEmailConfirmation: !data.session,
+  };
 }
 
 export async function signIn(email, password) {
@@ -42,8 +39,49 @@ export async function signIn(email, password) {
   const { data, error } = await sb.auth.signInWithPassword({ email, password });
   if (error) return { error: error.message };
 
-  const { data: userData } = await sb.from('users').select('*').eq('id', data.user.id).single();
+  let { data: userData } = await sb.from('users').select('*').eq('id', data.user.id).single();
+  if (!userData) {
+    const profileResult = await createProfileRecords(sb, data.user, data.user.user_metadata || {});
+    if (profileResult.error) return profileResult;
+    userData = profileResult.user;
+  }
+  if (!userData) return { error: 'Your account profile is incomplete. Please contact support.' };
   return { user: userData };
+}
+
+async function createProfileRecords(sb, authUser, profile) {
+  const fullName = profile.full_name || authUser.email?.split('@')[0] || 'VOLO User';
+  const role = profile.role === 'organization' ? 'organization' : 'volunteer';
+  const { data: user, error: userError } = await sb.from('users').upsert({
+    id: authUser.id,
+    full_name: fullName,
+    email: authUser.email,
+    role,
+    location: profile.location || null,
+  }).select().single();
+  if (userError) return { error: userError.message };
+
+  if (role === 'organization') {
+    const { error } = await sb.from('organizations').insert({
+      user_id: authUser.id,
+      name: fullName,
+      description: profile.description || '',
+      location: profile.location || null,
+      contact_email: authUser.email,
+    });
+    if (error && error.code !== '23505') return { error: error.message };
+  } else {
+    const { error } = await sb.from('volunteer_profiles').insert({
+      user_id: authUser.id,
+      skills: profile.skills || [],
+      interests: profile.interests || [],
+      availability: profile.availability || '',
+      confirmed_hours: 0,
+    });
+    if (error && error.code !== '23505') return { error: error.message };
+  }
+
+  return { user };
 }
 
 export async function signOut() {

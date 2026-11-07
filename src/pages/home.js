@@ -1,4 +1,5 @@
 import { signIn, signUp } from '../services/auth.js';
+import { isSupabaseConfigured } from '../services/supabase.js';
 import { SKILLS, INTERESTS, AVAILABILITY_OPTIONS } from '../services/matching.js';
 import { showToast } from '../components/toast.js';
 import { setNavbarUser } from '../components/navbar.js';
@@ -70,9 +71,11 @@ export async function renderHome(params) {
                   <button type="submit" class="btn btn-primary btn-full btn-lg">
                     Sign In to VOLO
                   </button>
-                  <p style="text-align:center;font-size:12px;color:rgba(255,255,255,0.4);">
-                    Demo: alex@example.com / demo1234
-                  </p>
+                  ${isSupabaseConfigured() ? '' : `
+                    <p style="text-align:center;font-size:12px;color:rgba(255,255,255,0.4);">
+                      Demo: alex@example.com / demo1234
+                    </p>
+                  `}
                 </form>
               </div>
 
@@ -265,10 +268,15 @@ export async function renderHome(params) {
       btn.disabled = false;
       btn.textContent = 'Create Account';
     } else {
-      setNavbarUser(result.user);
-      showToast(`Welcome to VOLO, ${result.user.full_name}! 🌟`, 'success');
-      if (result.user.role === 'organization') navigate('/dashboard');
-      else navigate('/discovery');
+      if (result.needsEmailConfirmation) {
+        showToast('Account created. Check your email to confirm your account, then sign in.', 'success');
+        document.querySelector('[data-auth-tab="login"]')?.click();
+      } else {
+        setNavbarUser(result.user);
+        showToast(`Welcome to VOLO, ${result.user.full_name}! 🌟`, 'success');
+        if (result.user.role === 'organization') navigate('/dashboard');
+        else navigate('/discovery');
+      }
     }
   });
 }

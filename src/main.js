@@ -5,7 +5,7 @@ import { renderDiscovery } from './pages/discovery.js';
 import { renderEventDetails } from './pages/eventDetails.js';
 import { renderProfile } from './pages/profile.js';
 import { renderOrgDashboard } from './pages/organizationDashboard.js';
-import { getCurrentUser } from './services/auth.js';
+import { getCurrentUser, onAuthChange } from './services/auth.js';
 
 // ── Router ────────────────────────────────────────────────────────────────────
 
@@ -74,6 +74,8 @@ async function handleRoute() {
 
 async function init() {
   await initNavbar();
+
+  onAuthChange(user => setNavbarUser(user));
 
   const user = await getCurrentUser();
   if (user) setNavbarUser(user);
