@@ -1,7 +1,7 @@
 {
   "name": "volo",
-  "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "description": "VOLO — Volunteer Opportunity & Community Connection Platform",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,9 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.49.1"
+    "@supabase/supabase-js": "^2.45.4"
   },
   "devDependencies": {
-    "vite": "^6.0.5"
+    "vite": "^5.4.10"
   }
 }
