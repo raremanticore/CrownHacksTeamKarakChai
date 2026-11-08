@@ -157,7 +157,7 @@ export async function getEventRegistrations(eventId, orgUserId) {
 
   const sb = getSupabase();
   const { data, error } = await sb.from('event_registrations')
-    .select('*, users(full_name, email, location), volunteer_profiles(skills, confirmed_hours)')
+    .select('*, users(full_name, email, location)')
     .eq('event_id', eventId)
     .neq('status', 'cancelled');
 
@@ -166,7 +166,23 @@ export async function getEventRegistrations(eventId, orgUserId) {
     throw new Error(error.message);
   }
 
-  return (data || []).map(r => ({ ...r, volunteer: r.users, profile: r.volunteer_profiles }));
+  const registrations = data || [];
+  const userIds = registrations.map(registration => registration.volunteer_user_id);
+  const { data: profiles, error: profileError } = userIds.length
+    ? await sb.from('volunteer_profiles').select('user_id, skills, confirmed_hours').in('user_id', userIds)
+    : { data: [], error: null };
+
+  if (profileError) {
+    console.error('VOLO: Unable to load volunteer profiles.', profileError);
+    throw new Error(profileError.message);
+  }
+
+  const profilesByUserId = new Map((profiles || []).map(profile => [profile.user_id, profile]));
+  return registrations.map(registration => ({
+    ...registration,
+    volunteer: registration.users,
+    profile: profilesByUserId.get(registration.volunteer_user_id),
+  }));
 }
 
 export async function confirmAttendance(registrationId, hours, orgUserId) {
