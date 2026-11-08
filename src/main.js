@@ -52,6 +52,15 @@ async function handleRoute() {
   switch (route) {
     case '/':
     case '':
+      {
+        const user = await getCurrentUser();
+        if (user) {
+          const destination = user.role === 'organization' ? '/dashboard' : '/discovery';
+          window.history.replaceState(null, '', `#${destination}`);
+          await handleRoute();
+          break;
+        }
+      }
       await renderHome(params);
       break;
     case '/discovery':
