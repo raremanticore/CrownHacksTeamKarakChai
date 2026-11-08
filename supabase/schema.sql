@@ -162,6 +162,24 @@ CREATE POLICY "Orgs update registrations for their events" ON public.event_regis
     )
   );
 
+-- Expose aggregate availability without exposing volunteer registrations.
+CREATE OR REPLACE FUNCTION public.get_event_spots(event_ids UUID[])
+RETURNS TABLE (event_id UUID, spots_taken BIGINT)
+LANGUAGE SQL
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT e.id,
+    COUNT(er.id) FILTER (WHERE er.status = 'registered') AS spots_taken
+  FROM public.events e
+  LEFT JOIN public.event_registrations er ON er.event_id = e.id
+  WHERE e.id = ANY(event_ids)
+  GROUP BY e.id;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.get_event_spots(UUID[]) TO anon, authenticated;
+
 -- ── Event Invitations ─────────────────────────────────────────────────────────
 
 CREATE TABLE public.event_invitations (

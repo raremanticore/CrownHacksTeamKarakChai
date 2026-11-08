@@ -25,7 +25,7 @@ export async function getEvents(filters = {}) {
     console.error('VOLO: Unable to load events from Supabase.', error);
     throw new Error(error.message);
   }
-  return (data || []).map(e => ({ ...e, organization_name: e.organizations?.name }));
+  return applyAvailability(sb, (data || []).map(e => ({ ...e, organization_name: e.organizations?.name })));
 }
 
 export async function getEvent(id) {
@@ -37,7 +37,25 @@ export async function getEvent(id) {
     .eq('id', id)
     .single();
   if (error) return null;
-  return { ...data, organization_name: data.organizations?.name };
+  const [event] = await applyAvailability(sb, [{ ...data, organization_name: data.organizations?.name }]);
+  return event;
+}
+
+async function applyAvailability(sb, events) {
+  if (!events.length) return events;
+  const { data, error } = await sb.rpc('get_event_spots', {
+    event_ids: events.map(event => event.id),
+  });
+  if (error) {
+    console.warn('VOLO: Event availability RPC is unavailable; using stored counts.', error);
+    return events;
+  }
+
+  const counts = new Map((data || []).map(row => [row.event_id, Number(row.spots_taken)]));
+  return events.map(event => ({
+    ...event,
+    spots_taken: counts.has(event.id) ? counts.get(event.id) : event.spots_taken,
+  }));
 }
 
 export async function createEvent(orgUserId, data) {
@@ -117,7 +135,9 @@ export async function registerForEvent(eventId, volunteerId) {
   const sb = getSupabase();
   const { data: event } = await sb.from('events').select('capacity, spots_taken').eq('id', eventId).single();
   if (!event) return { error: 'Event not found.' };
-  if (event.spots_taken >= event.capacity) return { error: 'This event is full.' };
+  const { data: availability } = await sb.rpc('get_event_spots', { event_ids: [eventId] });
+  const spotsTaken = availability?.[0]?.spots_taken ?? event.spots_taken;
+  if (spotsTaken >= event.capacity) return { error: 'This event is full.' };
 
   const { data: existing } = await sb.from('event_registrations')
     .select('id').eq('event_id', eventId).eq('volunteer_user_id', volunteerId).single();
