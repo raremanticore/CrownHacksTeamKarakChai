@@ -55,7 +55,7 @@ export async function signInWithGoogle() {
   const sb = getSupabase();
   const { error } = await sb.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo: `${window.location.origin}/#/discovery` },
+    options: { redirectTo: window.location.origin },
   });
   return error ? { error: error.message } : { success: true };
 }

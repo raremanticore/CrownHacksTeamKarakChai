@@ -14,7 +14,10 @@ export function navigate(path) {
 }
 
 function parsePath() {
-  const hash = window.location.hash.slice(1) || '/';
+  const rawHash = window.location.hash.slice(1);
+  const hash = rawHash.startsWith('/')
+    ? (rawHash.split('#')[0] || '/')
+    : (rawHash.includes('access_token=') || rawHash.includes('code=') ? '/' : rawHash || '/');
   const [pathname, queryString] = hash.split('?');
   const params = Object.fromEntries(new URLSearchParams(queryString || ''));
 
@@ -23,6 +26,11 @@ function parsePath() {
   if (eventMatch) return { route: 'event', id: eventMatch[1], params };
 
   return { route: pathname, params };
+}
+
+function isOAuthCallback() {
+  const hash = window.location.hash;
+  return hash.includes('access_token=') || hash.includes('code=');
 }
 
 async function handleRoute() {
@@ -81,6 +89,10 @@ async function init() {
   if (user) setNavbarUser(user);
 
   window.addEventListener('hashchange', handleRoute);
+  if (user && isOAuthCallback()) {
+    navigate('/discovery');
+    return;
+  }
   await handleRoute();
 }
 
