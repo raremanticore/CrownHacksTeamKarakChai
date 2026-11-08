@@ -60,6 +60,53 @@ export async function signInWithGoogle() {
   return error ? { error: error.message } : { success: true };
 }
 
+export async function becomeOrganization(userId, { name, description, location }) {
+  if (!isSupabaseConfigured()) {
+    const state = getState();
+    const user = state.users.find(item => item.id === userId);
+    if (!user) return { error: 'User not found.' };
+    if (user.role === 'organization') return { user };
+
+    const organization = {
+      id: `org-${Date.now()}`,
+      user_id: userId,
+      name,
+      description: description || '',
+      location: location || user.location || '',
+      contact_email: user.email,
+    };
+    setState(current => ({
+      ...current,
+      users: current.users.map(item => item.id === userId ? { ...item, role: 'organization' } : item),
+      organizations: [...current.organizations, organization],
+      currentUser: { ...user, role: 'organization' },
+    }));
+    return { user: { ...user, role: 'organization' } };
+  }
+
+  const sb = getSupabase();
+  const { data: user, error: userError } = await sb.from('users')
+    .update({ role: 'organization', location: location || null })
+    .eq('id', userId)
+    .select()
+    .single();
+  if (userError) return { error: userError.message };
+
+  const { error: organizationError } = await sb.from('organizations').insert({
+    user_id: userId,
+    name,
+    description: description || '',
+    location: location || null,
+    contact_email: user.email,
+  });
+  if (organizationError) {
+    await sb.from('users').update({ role: 'volunteer' }).eq('id', userId);
+    return { error: organizationError.message };
+  }
+
+  return { user };
+}
+
 async function createProfileRecords(sb, authUser, profile) {
   const fullName = profile.full_name || authUser.email?.split('@')[0] || 'VOLO User';
   const role = profile.role === 'organization' ? 'organization' : 'volunteer';

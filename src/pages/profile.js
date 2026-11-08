@@ -1,8 +1,9 @@
-import { getCurrentUser } from '../services/auth.js';
+import { becomeOrganization, getCurrentUser } from '../services/auth.js';
 import { getVolunteerRegistrations, cancelRegistration, getVolunteerInvitations, respondInvitation } from '../services/events.js';
 import { demoGetProfile, demoUpdateProfile } from '../services/demo.js';
 import { SKILLS, INTERESTS, AVAILABILITY_OPTIONS, getSkillLabel, getSkillIcon, formatDate, formatTime, isEventPast } from '../services/matching.js';
 import { showToast } from '../components/toast.js';
+import { setNavbarUser } from '../components/navbar.js';
 import { navigate } from '../main.js';
 
 export async function renderProfile() {
@@ -69,6 +70,7 @@ export async function renderProfile() {
           </div>
 
           <button class="btn btn-primary btn-full" id="edit-profile-btn">✏️ Edit Profile</button>
+          <button class="btn btn-outline btn-full" style="margin-top:10px;" id="become-org-btn">🏢 Become an Organization</button>
           <button class="btn btn-outline btn-full" style="margin-top:10px;" onclick="navigate('/discovery')">🔍 Discover More Events</button>
         </aside>
 
@@ -189,6 +191,35 @@ export async function renderProfile() {
         </div>
       </div>
     </div>
+
+    <div id="become-org-modal" style="display:none;" class="modal-overlay">
+      <div class="modal" style="max-width:520px;">
+        <div class="modal-header">
+          <h3 class="modal-title">🏢 Create an Organization</h3>
+          <div class="modal-close" id="close-org-modal-btn">×</div>
+        </div>
+        <div class="modal-body">
+          <form id="become-org-form" style="display:flex;flex-direction:column;gap:16px;">
+            <div class="form-group">
+              <label class="form-label">Organization Name</label>
+              <input class="form-control" name="name" placeholder="Your organization name" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Description</label>
+              <textarea class="form-control" name="description" placeholder="What does your organization do?" rows="4"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Location</label>
+              <input class="form-control" name="location" value="${escapeHtml(user.location || '')}" placeholder="City, State" />
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost" id="cancel-org-modal-btn">Cancel</button>
+          <button class="btn btn-primary" id="create-org-btn">Create Organization</button>
+        </div>
+      </div>
+    </div>
   `;
 
   // Window navigate shim
@@ -277,10 +308,43 @@ export async function renderProfile() {
     }
   });
 
+  document.getElementById('become-org-btn')?.addEventListener('click', () => {
+    document.getElementById('become-org-modal').style.display = 'flex';
+  });
+  document.getElementById('close-org-modal-btn')?.addEventListener('click', closeOrganizationModal);
+  document.getElementById('cancel-org-modal-btn')?.addEventListener('click', closeOrganizationModal);
+  document.getElementById('create-org-btn')?.addEventListener('click', async () => {
+    const form = document.getElementById('become-org-form');
+    if (!form.reportValidity()) return;
+    const data = new FormData(form);
+    const btn = document.getElementById('create-org-btn');
+    btn.disabled = true;
+    btn.textContent = 'Creating...';
+    const result = await becomeOrganization(user.id, {
+      name: data.get('name'),
+      description: data.get('description'),
+      location: data.get('location'),
+    });
+    if (result.error) {
+      showToast(result.error, 'error');
+      btn.disabled = false;
+      btn.textContent = 'Create Organization';
+      return;
+    }
+    setNavbarUser(result.user);
+    showToast('Organization created! Redirecting to your dashboard.', 'success');
+    navigate('/dashboard');
+  });
+
   // Click outside modal to close
   document.getElementById('edit-profile-modal')?.addEventListener('click', e => {
     if (e.target === e.currentTarget) e.currentTarget.style.display = 'none';
   });
+}
+
+function closeOrganizationModal() {
+  const modal = document.getElementById('become-org-modal');
+  if (modal) modal.style.display = 'none';
 }
 
 function renderEventsList(registrations, showCancel = false, showHours = false) {
