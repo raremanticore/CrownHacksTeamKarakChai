@@ -370,9 +370,7 @@ export function demoCancelRegistration(eventId, volunteerId) {
   const reg = state.registrations.find(r => r.event_id === eventId && r.volunteer_user_id === volunteerId);
   if (!reg) return { error: 'Registration not found.' };
 
-  const registrations = state.registrations.map(r =>
-    r.id === reg.id ? { ...r, status: 'cancelled' } : r
-  );
+  const registrations = state.registrations.filter(r => r.id !== reg.id);
   const events = state.events.map(e =>
     e.id === eventId ? { ...e, spots_taken: Math.max(0, e.spots_taken - 1) } : e
   );

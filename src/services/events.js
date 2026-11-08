@@ -93,8 +93,20 @@ export async function getOrgEvents(orgUserId) {
   const { data: org } = await sb.from('organizations').select('id').eq('user_id', orgUserId).single();
   if (!org) return [];
 
-  const { data } = await sb.from('events').select('*').eq('organization_id', org.id).order('date');
-  return data || [];
+  const { data, error } = await sb.from('events')
+    .select('*, event_registrations(id, status)')
+    .eq('organization_id', org.id)
+    .order('date');
+  if (error) {
+    console.error('VOLO: Unable to load organization events.', error);
+    return [];
+  }
+
+  return (data || []).map(event => ({
+    ...event,
+    spots_taken: (event.event_registrations || [])
+      .filter(registration => registration.status !== 'cancelled').length,
+  }));
 }
 
 // ── Registrations ─────────────────────────────────────────────────────────────
@@ -127,14 +139,16 @@ export async function cancelRegistration(eventId, volunteerId) {
 
   const sb = getSupabase();
   const { error } = await sb.from('event_registrations')
-    .update({ status: 'cancelled' })
+    .delete()
     .eq('event_id', eventId)
     .eq('volunteer_user_id', volunteerId);
 
   if (error) return { error: error.message };
 
   const { data: event } = await sb.from('events').select('spots_taken').eq('id', eventId).single();
-  if (event) await sb.from('events').update({ spots_taken: Math.max(0, event.spots_taken - 1) }).eq('id', eventId);
+  if (event) {
+    await sb.from('events').update({ spots_taken: Math.max(0, event.spots_taken - 1) }).eq('id', eventId);
+  }
 
   return { success: true };
 }

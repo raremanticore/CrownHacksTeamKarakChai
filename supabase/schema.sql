@@ -150,6 +150,9 @@ CREATE POLICY "Volunteers insert own registration" ON public.event_registrations
 CREATE POLICY "Volunteers update own registration" ON public.event_registrations
   FOR UPDATE USING (auth.uid() = volunteer_user_id);
 
+CREATE POLICY "Volunteers delete own registration" ON public.event_registrations
+  FOR DELETE USING (auth.uid() = volunteer_user_id);
+
 CREATE POLICY "Orgs update registrations for their events" ON public.event_registrations
   FOR UPDATE USING (
     event_id IN (
