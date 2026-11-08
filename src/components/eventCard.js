@@ -27,9 +27,11 @@ export function renderEventCard(event) {
       <div class="event-card-org">by ${escapeHtml(event.organization_name)}</div>
       <div class="event-card-meta">
         <div class="event-meta-item">
+          <span class="event-meta-icon">📅</span>
           <span>${formatDate(event.date)} · ${formatTime(event.time)}</span>
         </div>
         <div class="event-meta-item">
+          <span class="event-meta-icon">📍</span>
           <span>${escapeHtml(event.location)}</span>
         </div>
       </div>

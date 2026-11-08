@@ -16,7 +16,7 @@ export async function renderDiscovery() {
   content.innerHTML = `
     <div class="page-header">
       <div class="container">
-        <h1>Discover Events</h1>
+        <h1>🔍 Discover Events</h1>
         <p>Find volunteering opportunities that match your skills and schedule.</p>
       </div>
     </div>
@@ -27,6 +27,7 @@ export async function renderDiscovery() {
         <aside class="filters-sidebar">
           <div class="filter-panel">
             <div class="search-bar" style="margin-bottom:16px;">
+              <span class="search-icon">🔍</span>
               <input type="text" class="search-input" id="search-input" placeholder="Search events..." value="${filters.search}" />
             </div>
             <div class="form-group">
@@ -51,13 +52,13 @@ export async function renderDiscovery() {
             <h4>Special</h4>
             <div class="filter-chips">
               <button class="filter-chip emergency-chip ${filters.isEmergency ? 'active' : ''}" id="emergency-filter">
-                Emergency Only
+                🚨 Emergency Only
               </button>
             </div>
           </div>
 
           <button class="btn btn-ghost btn-full" id="clear-filters-btn">
-            Clear All Filters
+            ✕ Clear All Filters
           </button>
         </aside>
 
@@ -67,6 +68,7 @@ export async function renderDiscovery() {
           <div id="emergency-banner" style="display:none;" class="card" style="border-color: var(--color-emergency); margin-bottom:20px;">
             <div class="card-body" style="background:var(--color-emergency-light);border-radius:var(--radius-lg);border:1px solid var(--color-emergency);">
               <div style="display:flex;align-items:center;gap:12px;">
+                <span style="font-size:28px;">🚨</span>
                 <div>
                   <strong style="color:var(--color-emergency);font-size:16px;">Emergency Volunteering Opportunities</strong>
                   <p style="font-size:13px;color:#991b1b;margin-top:2px;">
@@ -113,6 +115,7 @@ async function loadEvents() {
     if (grid) {
       grid.innerHTML = `
         <div class="empty-state" style="grid-column:1/-1;">
+          <div class="empty-state-icon">⚠️</div>
           <h3>Unable to load events</h3>
           <p>${escapeHtml(error.message || 'Please try again.')}</p>
           <button class="btn btn-primary" id="retry-events">Try Again</button>
@@ -128,6 +131,7 @@ async function loadEvents() {
     if (allEvents.length === 0) {
       grid.innerHTML = `
         <div class="empty-state" style="grid-column:1/-1;">
+          <div class="empty-state-icon">🔍</div>
           <h3>No events found</h3>
           <p>Try adjusting your filters or search terms to find more opportunities.</p>
           <button class="btn btn-primary" id="reset-search">Clear Filters</button>

@@ -20,7 +20,7 @@ export async function renderOrgDashboard() {
   content.innerHTML = `
     <div class="page-header">
       <div class="container">
-        <h1>Organization Dashboard</h1>
+        <h1>🏢 Organization Dashboard</h1>
         <p>Manage your events, recruit volunteers, and track participation.</p>
       </div>
     </div>
@@ -35,18 +35,18 @@ export async function renderOrgDashboard() {
             </div>
             <div style="font-weight:700;font-size:16px;">${escapeHtml(org?.name || orgUser.full_name)}</div>
             <div class="badge badge-primary" style="margin-top:6px;">Organization</div>
-            ${org?.location ? `<div style="font-size:12px;color:var(--color-text-secondary);margin-top:8px;">${escapeHtml(org.location)}</div>` : ''}
+            ${org?.location ? `<div style="font-size:12px;color:var(--color-text-secondary);margin-top:8px;">📍 ${escapeHtml(org.location)}</div>` : ''}
           </div>
 
           <nav class="org-nav">
             <div class="org-nav-item ${currentSection === 'events' ? 'active' : ''}" data-section="events">
-              <span class="org-nav-icon">My Events</span>
+              <span class="org-nav-icon">📋</span> My Events
             </div>
             <div class="org-nav-item ${currentSection === 'create' ? 'active' : ''}" data-section="create">
-              <span class="org-nav-icon">Create Event</span>
+              <span class="org-nav-icon">➕</span> Create Event
             </div>
             <div class="org-nav-item ${currentSection === 'volunteers' ? 'active' : ''}" data-section="volunteers">
-              <span class="org-nav-icon">Find Volunteers</span>
+              <span class="org-nav-icon">🔍</span> Find Volunteers
             </div>
             <div class="org-nav-item ${currentSection === 'registrations' ? 'active' : ''}" data-section="registrations">
               <span class="org-nav-icon">👥</span> Registrations
@@ -97,13 +97,13 @@ function renderEventsSection(container) {
 
   container.innerHTML = `
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
-      <h2 class="section-title" style="margin-bottom:0;">My Events</h2>
-      <button class="btn btn-primary" id="create-event-quick-btn">Create Event</button>
+      <h2 class="section-title" style="margin-bottom:0;">📋 My Events</h2>
+      <button class="btn btn-primary" id="create-event-quick-btn">➕ Create Event</button>
     </div>
 
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px;">
       <div class="stat-card">
-        <div class="stat-icon">Events</div>
+        <div class="stat-icon">📅</div>
         <div class="stat-value">${orgEvents.length}</div>
         <div class="stat-label">Total Events</div>
       </div>
@@ -121,9 +121,10 @@ function renderEventsSection(container) {
 
     ${orgEvents.length === 0 ? `
       <div class="empty-state">
+        <div class="empty-state-icon">📋</div>
         <h3>No events yet</h3>
         <p>Create your first event to start recruiting volunteers.</p>
-        <button class="btn btn-primary" id="create-first-event-btn">Create First Event</button>
+        <button class="btn btn-primary" id="create-first-event-btn">➕ Create First Event</button>
       </div>
     ` : `
       <div style="display:flex;flex-direction:column;gap:14px;" id="events-list">
@@ -193,7 +194,7 @@ function renderOrgEventRow(event) {
             ${event.spots_taken}/${event.capacity} volunteers
           </span>
           <span style="color:var(--color-text-muted);margin-left:8px;">
-            ${event.status === 'pending_approval' ? 'Pending approval' : 'Published'}
+            ${event.status === 'pending_approval' ? '⏳ Pending approval' : '✅ Published'}
           </span>
         </div>
       </div>
@@ -209,7 +210,7 @@ function renderOrgEventRow(event) {
 
 function renderCreateEventSection(container) {
   container.innerHTML = `
-    <h2 class="section-title">Create New Event</h2>
+    <h2 class="section-title">➕ Create New Event</h2>
     <div class="card card-body">
       <form id="create-event-form" style="display:flex;flex-direction:column;gap:18px;">
 
@@ -337,11 +338,12 @@ function renderCreateEventSection(container) {
 
 async function renderVolunteersSection(container) {
   container.innerHTML = `
-    <h2 class="section-title">Find Volunteers</h2>
+    <h2 class="section-title">🔍 Find Volunteers</h2>
 
     <div class="card card-body" style="margin-bottom:20px;">
       <div style="display:flex;gap:12px;flex-wrap:wrap;">
         <div class="search-bar" style="flex:1;min-width:200px;">
+          <span class="search-icon">🔍</span>
           <input type="text" class="search-input" id="vol-location-filter" placeholder="Filter by location..." />
         </div>
         <div style="display:flex;flex-direction:column;gap:4px;">
@@ -395,6 +397,7 @@ async function loadVolunteers() {
   if (!volunteers.length) {
     resultsEl.innerHTML = `
       <div class="empty-state">
+        <div class="empty-state-icon">👤</div>
         <h3>No volunteers found</h3>
         <p>Try adjusting your filters.</p>
       </div>
@@ -429,8 +432,8 @@ async function loadVolunteers() {
         btn.disabled = false;
         btn.textContent = 'Invite';
       } else {
-        showToast('Invitation sent.', 'success');
-        btn.textContent = 'Invited';
+        showToast('Invitation sent! 📬', 'success');
+        btn.textContent = '✅ Invited';
       }
     });
   });
@@ -445,7 +448,7 @@ function renderVolunteerCard(vol, eventId) {
       <div class="volunteer-avatar">${getInitials(vol.user?.full_name)}</div>
       <div class="volunteer-info">
         <div class="volunteer-name">${escapeHtml(vol.user?.full_name || 'Volunteer')}</div>
-        <div class="volunteer-location">${escapeHtml(vol.user?.location || 'Location not set')}</div>
+        <div class="volunteer-location">📍 ${escapeHtml(vol.user?.location || 'Location not set')}</div>
         <div class="volunteer-skills-wrap">
           ${(vol.skills || []).slice(0, 5).map(s => `
             <span class="tag ${matchedSkills.includes(s) ? 'tag-primary' : ''}" style="font-size:11px;">
@@ -463,7 +466,7 @@ function renderVolunteerCard(vol, eventId) {
         </div>
       ` : ''}
       <button class="btn btn-outline btn-sm" data-invite-vol="${vol.user_id}">
-        Invite
+        📬 Invite
       </button>
     </div>
   `;
@@ -510,6 +513,7 @@ async function loadEventRegistrations(eventId) {
   } catch (error) {
     container.innerHTML = `
       <div class="empty-state">
+        <div class="empty-state-icon">⚠️</div>
         <h3>Unable to load registrations</h3>
         <p>${escapeHtml(error.message || 'Check your Supabase policies and try again.')}</p>
       </div>
@@ -552,7 +556,7 @@ async function loadEventRegistrations(eventId) {
           </div>
           <div style="text-align:right;flex-shrink:0;">
             ${r.attendance_status === 'confirmed' ? `
-              <div class="badge badge-primary" style="margin-bottom:4px;">Confirmed</div>
+              <div class="badge badge-primary" style="margin-bottom:4px;">✅ Confirmed</div>
               <div style="font-size:12px;color:var(--color-text-secondary);">${r.confirmed_hours} hrs</div>
             ` : `
               <div style="display:flex;align-items:center;gap:8px;">
@@ -582,7 +586,7 @@ async function loadEventRegistrations(eventId) {
         btn.disabled = false;
         btn.textContent = 'Confirm Hours';
       } else {
-        showToast(`Attendance confirmed. ${hours} hours recorded.`, 'success');
+        showToast(`Attendance confirmed! ${hours} hours recorded. ✅`, 'success');
         const eventId = document.getElementById('reg-event-select')?.value;
         if (eventId) loadEventRegistrations(eventId);
       }

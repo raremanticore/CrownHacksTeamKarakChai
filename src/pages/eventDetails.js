@@ -72,7 +72,7 @@ export async function renderEventDetails(eventId) {
 
           ${event.is_emergency ? `
             <div class="event-info-block" style="border-color:var(--color-emergency);background:var(--color-emergency-light);">
-              <h3 style="color:var(--color-emergency);">Safety Information</h3>
+              <h3 style="color:var(--color-emergency);">⚠️ Safety Information</h3>
               <p style="color:#991b1b;font-size:14px;line-height:1.6;">
                 This is a verified emergency volunteering opportunity. All volunteer activities are conducted
                 in safe, controlled indoor settings. No volunteers will be directed into hazardous areas.
@@ -90,27 +90,27 @@ export async function renderEventDetails(eventId) {
             <h3>Event Details</h3>
             <div class="event-meta-grid">
               <div class="event-meta-item-lg">
-                <span class="label">Date</span>
+                <span class="label">📅 Date</span>
                 <span class="value">${formatDate(event.date)}</span>
               </div>
               <div class="event-meta-item-lg">
-                <span class="label">Time</span>
+                <span class="label">🕐 Time</span>
                 <span class="value">${formatTime(event.time)}</span>
               </div>
               <div class="event-meta-item-lg">
-                <span class="label">Location</span>
+                <span class="label">📍 Location</span>
                 <span class="value">${escapeHtml(event.location)}</span>
               </div>
               <div class="event-meta-item-lg">
-                <span class="label">Category</span>
+                <span class="label">📂 Category</span>
                 <span class="value">${getCategoryIcon(event.category)} ${getCategoryLabel(event.category)}</span>
               </div>
               <div class="event-meta-item-lg">
-                <span class="label">Capacity</span>
+                <span class="label">👥 Capacity</span>
                 <span class="value">${event.spots_taken} / ${event.capacity} volunteers</span>
               </div>
               <div class="event-meta-item-lg">
-                <span class="label">Spots Available</span>
+                <span class="label">🎯 Spots Available</span>
                 <span class="value" style="color:${isFull ? 'var(--color-danger)' : spotsLeft <= 3 ? 'var(--color-warning)' : 'var(--color-primary)'};">
                   ${isFull ? 'Event Full' : `${spotsLeft} spots left`}
                 </span>
@@ -132,7 +132,7 @@ export async function renderEventDetails(eventId) {
           ` : ''}
 
           <div class="event-info-block">
-            <h3>About the Organization</h3>
+            <h3>🏢 About the Organization</h3>
             <p style="font-size:14px;color:var(--color-text-secondary);">
               <strong>${escapeHtml(event.organization_name)}</strong>
             </p>
@@ -168,7 +168,7 @@ export async function renderEventDetails(eventId) {
               </div>
               ${isRegistered ? `
                 <p style="font-size:12px;color:var(--color-primary);text-align:center;margin-top:8px;font-weight:500;">
-                  You're registered for this event
+                  ✅ You're registered for this event
                 </p>
               ` : ''}
             ` : isOrg ? `
@@ -180,12 +180,15 @@ export async function renderEventDetails(eventId) {
 
             <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--color-border);">
               <div class="event-meta-item" style="margin-bottom:8px;">
+                <span class="event-meta-icon">📅</span>
                 <span style="font-size:13px;">${formatDate(event.date)}</span>
               </div>
               <div class="event-meta-item" style="margin-bottom:8px;">
+                <span class="event-meta-icon">🕐</span>
                 <span style="font-size:13px;">${formatTime(event.time)}</span>
               </div>
               <div class="event-meta-item">
+                <span class="event-meta-icon">📍</span>
                 <span style="font-size:13px;">${escapeHtml(event.location)}</span>
               </div>
             </div>

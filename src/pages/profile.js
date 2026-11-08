@@ -23,7 +23,7 @@ export async function renderProfile() {
   content.innerHTML = `
     <div class="page-header">
       <div class="container">
-        <h1>My Volunteer Profile</h1>
+        <h1>👤 My Volunteer Profile</h1>
         <p>Manage your profile, track your impact, and view your events.</p>
       </div>
     </div>
@@ -36,8 +36,8 @@ export async function renderProfile() {
           <div class="profile-card">
             <div class="profile-avatar">${getInitials(user.full_name)}</div>
             <div class="profile-name">${escapeHtml(user.full_name)}</div>
-            <div class="profile-role-badge">Volunteer</div>
-            ${user.location ? `<div class="profile-location">${escapeHtml(user.location)}</div>` : ''}
+            <div class="profile-role-badge">🙋 Volunteer</div>
+            ${user.location ? `<div class="profile-location">📍 ${escapeHtml(user.location)}</div>` : ''}
 
             <div class="impact-mini-stats">
               <div class="impact-mini-stat">
@@ -69,9 +69,9 @@ export async function renderProfile() {
             ` : `<p style="font-size:13px;color:var(--color-text-muted);">No skills added yet. Edit your profile to add skills.</p>`}
           </div>
 
-          <button class="btn btn-primary btn-full" id="edit-profile-btn">Edit Profile</button>
-          <button class="btn btn-outline btn-full" style="margin-top:10px;" id="become-org-btn">Become an Organization</button>
-          <button class="btn btn-outline btn-full" style="margin-top:10px;" onclick="navigate('/discovery')">Discover More Events</button>
+          <button class="btn btn-primary btn-full" id="edit-profile-btn">✏️ Edit Profile</button>
+          <button class="btn btn-outline btn-full" style="margin-top:10px;" id="become-org-btn">🏢 Become an Organization</button>
+          <button class="btn btn-outline btn-full" style="margin-top:10px;" onclick="navigate('/discovery')">🔍 Discover More Events</button>
         </aside>
 
         <!-- Main Content -->
@@ -79,7 +79,7 @@ export async function renderProfile() {
           <!-- Invitations -->
           ${invitations.length > 0 ? `
             <div class="card card-body" style="margin-bottom:24px;border-color:var(--color-secondary);background:var(--color-secondary-light);">
-              <h3 style="color:var(--color-secondary);margin-bottom:16px;">Event Invitations (${invitations.length})</h3>
+              <h3 style="color:var(--color-secondary);margin-bottom:16px;">📬 Event Invitations (${invitations.length})</h3>
               <div style="display:flex;flex-direction:column;gap:12px;" id="invitations-list">
                 ${invitations.map(inv => `
                   <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;background:white;padding:14px;border-radius:var(--radius-md);">
@@ -99,25 +99,25 @@ export async function renderProfile() {
 
           <!-- Impact -->
           <div style="margin-bottom:24px;">
-            <h2 class="section-title">My Impact</h2>
+            <h2 class="section-title">📊 My Impact</h2>
             <div class="impact-stats-grid">
               <div class="stat-card">
-                <div class="stat-icon">Hours</div>
+                <div class="stat-icon">⏱️</div>
                 <div class="stat-value" style="color:var(--color-primary);">${confirmedHours}</div>
                 <div class="stat-label">Confirmed Hours</div>
               </div>
               <div class="stat-card">
-                <div class="stat-icon">Done</div>
+                <div class="stat-icon">✅</div>
                 <div class="stat-value" style="color:var(--color-secondary);">${completed.length}</div>
                 <div class="stat-label">Events Completed</div>
               </div>
               <div class="stat-card">
-                <div class="stat-icon">Orgs</div>
+                <div class="stat-icon">🏢</div>
                 <div class="stat-value" style="color:var(--color-warning);">${orgsSupported}</div>
                 <div class="stat-label">Organizations Supported</div>
               </div>
               <div class="stat-card">
-                <div class="stat-icon">Next</div>
+                <div class="stat-icon">📅</div>
                 <div class="stat-value" style="color:#8b5cf6;">${upcoming.length}</div>
                 <div class="stat-label">Upcoming Events</div>
               </div>
@@ -126,9 +126,9 @@ export async function renderProfile() {
 
           <!-- Tabs: Upcoming / Completed -->
           <div class="tabs" id="profile-tabs">
-            <div class="tab active" data-tab="upcoming">Upcoming (${upcoming.length})</div>
-            <div class="tab" data-tab="completed">Completed (${completed.length})</div>
-            <div class="tab" data-tab="history">All Registrations (${registrations.length})</div>
+            <div class="tab active" data-tab="upcoming">📅 Upcoming (${upcoming.length})</div>
+            <div class="tab" data-tab="completed">✅ Completed (${completed.length})</div>
+            <div class="tab" data-tab="history">📋 All Registrations (${registrations.length})</div>
           </div>
 
           <div class="tab-content active" id="tab-upcoming">
@@ -148,7 +148,7 @@ export async function renderProfile() {
     <div id="edit-profile-modal" style="display:none;" class="modal-overlay">
       <div class="modal" style="max-width:600px;">
         <div class="modal-header">
-          <h3 class="modal-title">Edit Profile</h3>
+          <h3 class="modal-title">✏️ Edit Profile</h3>
           <div class="modal-close" id="close-modal-btn">×</div>
         </div>
         <div class="modal-body">
@@ -195,7 +195,7 @@ export async function renderProfile() {
     <div id="become-org-modal" style="display:none;" class="modal-overlay">
       <div class="modal" style="max-width:520px;">
         <div class="modal-header">
-          <h3 class="modal-title">Create an Organization</h3>
+          <h3 class="modal-title">🏢 Create an Organization</h3>
           <div class="modal-close" id="close-org-modal-btn">×</div>
         </div>
         <div class="modal-body">
@@ -302,7 +302,7 @@ export async function renderProfile() {
       btn.disabled = false;
       btn.textContent = 'Save Changes';
     } else {
-      showToast('Profile updated successfully.', 'success');
+      showToast('Profile updated successfully! ✅', 'success');
       document.getElementById('edit-profile-modal').style.display = 'none';
       renderProfile();
     }
@@ -351,6 +351,7 @@ function renderEventsList(registrations, showCancel = false, showHours = false) 
   if (!registrations.length) {
     return `
       <div class="empty-state">
+        <div class="empty-state-icon">${showCancel ? '📅' : '✅'}</div>
         <h3>${showCancel ? 'No upcoming events' : 'No completed events yet'}</h3>
         <p>${showCancel ? 'Register for events to see them here.' : 'Complete events to build your impact history.'}</p>
         ${showCancel ? `<button class="btn btn-primary" onclick="navigate('/discovery')">Discover Events</button>` : ''}
@@ -368,7 +369,7 @@ function renderEventsList(registrations, showCancel = false, showHours = false) 
         return `
           <div style="background:white;border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:18px 20px;display:flex;align-items:center;gap:16px;box-shadow:var(--shadow-sm);">
             <div style="width:48px;height:48px;border-radius:var(--radius-md);background:${isPast ? 'var(--color-surface-3)' : 'var(--color-primary-light)'};display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">
-              ${isPast ? (isConfirmed ? 'Confirmed' : 'Completed') : 'Upcoming'}
+              ${isPast ? (isConfirmed ? '✅' : '📋') : '📅'}
             </div>
             <div style="flex:1;min-width:0;">
               <div style="font-weight:700;font-size:15px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
@@ -380,7 +381,7 @@ function renderEventsList(registrations, showCancel = false, showHours = false) 
               </div>
               ${isConfirmed && r.confirmed_hours ? `
                 <div style="font-size:12px;color:var(--color-primary);font-weight:600;margin-top:2px;">
-                  ${r.confirmed_hours} confirmed hours
+                  ⏱️ ${r.confirmed_hours} confirmed hours
                 </div>
               ` : ''}
             </div>

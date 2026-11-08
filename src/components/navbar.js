@@ -31,9 +31,9 @@ function renderNavbar() {
 
         <nav class="navbar-nav">
           ${isLoggedIn ? `
-            <span class="nav-link" data-nav="/discovery">Discover Events</span>
-            ${isVol ? `<span class="nav-link" data-nav="/profile">My Profile</span>` : ''}
-            ${isOrg ? `<span class="nav-link" data-nav="/dashboard">Dashboard</span>` : ''}
+            <span class="nav-link" data-nav="/discovery">🔍 Discover Events</span>
+            ${isVol ? `<span class="nav-link" data-nav="/profile">👤 My Profile</span>` : ''}
+            ${isOrg ? `<span class="nav-link" data-nav="/dashboard">🏢 Dashboard</span>` : ''}
           ` : ''}
         </nav>
 

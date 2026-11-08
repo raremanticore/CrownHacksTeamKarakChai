@@ -17,7 +17,7 @@ export async function renderHome(params) {
           <!-- Left: Hero Text -->
           <div class="hero-text">
             <div class="hero-eyebrow">
-              Community Connection Platform
+              <span>🌱</span> Community Connection Platform
             </div>
             <h1 class="hero-title">
               Make a Difference<br>with <span>VOLO</span>
@@ -27,7 +27,7 @@ export async function renderHome(params) {
             </p>
             <div class="hero-actions">
               <button class="btn btn-primary btn-xl" id="hero-signup-btn">
-                Get Started Free
+                🌟 Get Started Free
               </button>
               <button class="btn btn-xl" style="background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.2);" id="hero-login-btn">
                 Sign In
@@ -91,14 +91,14 @@ export async function renderHome(params) {
                       <label class="role-option">
                         <input type="radio" name="role" value="volunteer" checked />
                         <div class="role-card">
-                          <div class="role-icon">Volunteer</div>
+                          <div class="role-icon">🙋</div>
                           <div class="role-name">Volunteer</div>
                         </div>
                       </label>
                       <label class="role-option">
                         <input type="radio" name="role" value="organization" />
                         <div class="role-card">
-                          <div class="role-icon">Organization</div>
+                          <div class="role-icon">🏢</div>
                           <div class="role-name">Organization</div>
                         </div>
                       </label>
@@ -164,21 +164,21 @@ export async function renderHome(params) {
             <!-- Features below auth -->
             <div class="features-list" style="margin-top:0;padding-top:28px;">
               <div class="feature-item">
-                <div class="feature-icon-wrap">01</div>
+                <div class="feature-icon-wrap">🔍</div>
                 <div class="feature-text">
                   <h4>Discover Opportunities</h4>
                   <p>Browse hundreds of local events filtered by your skills and location.</p>
                 </div>
               </div>
               <div class="feature-item">
-                <div class="feature-icon-wrap">02</div>
+                <div class="feature-icon-wrap">🎯</div>
                 <div class="feature-text">
                   <h4>Skill-Based Matching</h4>
                   <p>Get matched with events that need exactly what you have to offer.</p>
                 </div>
               </div>
               <div class="feature-item">
-                <div class="feature-icon-wrap">03</div>
+                <div class="feature-icon-wrap">📊</div>
                 <div class="feature-text">
                   <h4>Track Your Impact</h4>
                   <p>See your confirmed volunteer hours and the difference you've made.</p>
@@ -288,7 +288,7 @@ export async function renderHome(params) {
         document.querySelector('[data-auth-tab="login"]')?.click();
       } else {
         setNavbarUser(result.user);
-        showToast(`Welcome to VOLO, ${result.user.full_name}!`, 'success');
+        showToast(`Welcome to VOLO, ${result.user.full_name}! 🌟`, 'success');
         if (result.user.role === 'organization') navigate('/dashboard');
         else navigate('/discovery');
       }
