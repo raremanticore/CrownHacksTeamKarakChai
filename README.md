@@ -12,3 +12,7 @@ VITE_SUPABASE_ANON_KEY=your-anon-key
 ```
 
 Vercel detects the Vite build automatically. Use `npm run build` to create the production bundle.
+
+## Google sign-in
+
+In Supabase, enable **Authentication > Providers > Google** and add your Google OAuth client ID and secret. Add the Supabase callback URL shown in the provider settings to Google Cloud, and add your app URL (for example `http://localhost:5173`) under **Authentication > URL Configuration > Redirect URLs**.

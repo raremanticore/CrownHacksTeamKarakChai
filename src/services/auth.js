@@ -49,6 +49,17 @@ export async function signIn(email, password) {
   return { user: userData };
 }
 
+export async function signInWithGoogle() {
+  if (!isSupabaseConfigured()) return { error: 'Google sign-in requires Supabase configuration.' };
+
+  const sb = getSupabase();
+  const { error } = await sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: `${window.location.origin}/#/discovery` },
+  });
+  return error ? { error: error.message } : { success: true };
+}
+
 async function createProfileRecords(sb, authUser, profile) {
   const fullName = profile.full_name || authUser.email?.split('@')[0] || 'VOLO User';
   const role = profile.role === 'organization' ? 'organization' : 'volunteer';
@@ -102,8 +113,12 @@ export async function getCurrentUser() {
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return null;
 
-  const { data } = await sb.from('users').select('*').eq('id', user.id).single();
-  return data || null;
+  let { data } = await sb.from('users').select('*').eq('id', user.id).single();
+  if (!data) {
+    const profileResult = await createProfileRecords(sb, user, user.user_metadata || {});
+    data = profileResult.user || null;
+  }
+  return data;
 }
 
 export function onAuthChange(callback) {

@@ -1,4 +1,4 @@
-import { signIn, signUp } from '../services/auth.js';
+import { signIn, signInWithGoogle, signUp } from '../services/auth.js';
 import { isSupabaseConfigured } from '../services/supabase.js';
 import { SKILLS, INTERESTS, AVAILABILITY_OPTIONS } from '../services/matching.js';
 import { showToast } from '../components/toast.js';
@@ -70,6 +70,9 @@ export async function renderHome(params) {
                   </div>
                   <button type="submit" class="btn btn-primary btn-full btn-lg">
                     Sign In to VOLO
+                  </button>
+                  <button type="button" class="btn btn-outline btn-full" id="google-login-btn">
+                    Continue with Google
                   </button>
                   ${isSupabaseConfigured() ? '' : `
                     <p style="text-align:center;font-size:12px;color:rgba(255,255,255,0.4);">
@@ -239,6 +242,18 @@ export async function renderHome(params) {
       showToast(`Welcome back, ${result.user.full_name}! 👋`, 'success');
       if (result.user.role === 'organization') navigate('/dashboard');
       else navigate('/discovery');
+    }
+  });
+
+  document.getElementById('google-login-btn')?.addEventListener('click', async e => {
+    const btn = e.currentTarget;
+    btn.disabled = true;
+    btn.textContent = 'Connecting to Google...';
+    const result = await signInWithGoogle();
+    if (result.error) {
+      showToast(result.error, 'error');
+      btn.disabled = false;
+      btn.textContent = 'Continue with Google';
     }
   });
 
