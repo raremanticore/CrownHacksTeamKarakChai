@@ -1,7 +1,11 @@
 import './styles/style.css';
-import { initNavbar } from './components/navbar.js';
+import { initNavbar, setNavbarUser } from './components/navbar.js';
+import { renderHome } from './pages/home.js';
 import { renderDiscovery } from './pages/discovery.js';
 import { renderEventDetails } from './pages/eventDetails.js';
+import { renderProfile } from './pages/profile.js';
+import { renderOrgDashboard } from './pages/organizationDashboard.js';
+import { getCurrentUser, onAuthChange } from './services/auth.js';
 
 // ── Router ────────────────────────────────────────────────────────────────────
 
@@ -40,13 +44,19 @@ async function handleRoute() {
   switch (route) {
     case '/':
     case '':
-      navigate('/discovery');
-      return;
+      await renderHome(params);
+      break;
     case '/discovery':
       await renderDiscovery();
       break;
     case 'event':
       await renderEventDetails(id);
+      break;
+    case '/profile':
+      await renderProfile();
+      break;
+    case '/dashboard':
+      await renderOrgDashboard();
       break;
     default:
       content.innerHTML = `
@@ -64,6 +74,11 @@ async function handleRoute() {
 
 async function init() {
   await initNavbar();
+
+  onAuthChange(user => setNavbarUser(user));
+
+  const user = await getCurrentUser();
+  if (user) setNavbarUser(user);
 
   window.addEventListener('hashchange', handleRoute);
   await handleRoute();

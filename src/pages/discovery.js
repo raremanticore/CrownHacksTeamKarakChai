@@ -1,6 +1,7 @@
 import { getEvents } from '../services/events.js';
 import { CATEGORIES, formatDate, formatTime } from '../services/matching.js';
 import { renderEventCard } from '../components/eventCard.js';
+import { getCurrentUser } from '../services/auth.js';
 import { navigate } from '../main.js';
 
 let allEvents = [];
@@ -8,6 +9,9 @@ let filters = { category: 'all', search: '', location: '', isEmergency: false };
 
 export async function renderDiscovery() {
   const content = document.getElementById('page-content');
+
+  const user = await getCurrentUser();
+  if (!user) { navigate('/'); return; }
 
   content.innerHTML = `
     <div class="page-header">

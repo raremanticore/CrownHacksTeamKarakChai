@@ -41,6 +41,12 @@ function initState() {
       { id: userId3, full_name: 'Alex Johnson', email: 'alex@example.com', role: 'volunteer', location: 'San Francisco, CA' },
       { id: userId4, full_name: 'Jordan Lee', email: 'jordan@example.com', role: 'volunteer', location: 'Berkeley, CA' },
     ],
+    passwords: {
+      'contact@greenearth.org': 'demo1234',
+      'info@cityfoodbank.org': 'demo1234',
+      'alex@example.com': 'demo1234',
+      'jordan@example.com': 'demo1234',
+    },
     organizations: [
       {
         id: orgId1, user_id: userId1,
@@ -173,6 +179,7 @@ function initState() {
     ],
     registrations: [],
     invitations: [],
+    currentUser: null,
   };
 }
 
@@ -194,6 +201,59 @@ export function setState(updater) {
 export function resetDemo() {
   localStorage.removeItem(STORAGE_KEY);
   return getState();
+}
+
+// ── Auth ──────────────────────────────────────────────────────────────────────
+
+export function demoLogin(email, password) {
+  const state = getState();
+  if (state.passwords[email] !== password) return { error: 'Invalid email or password.' };
+  const user = state.users.find(u => u.email === email);
+  if (!user) return { error: 'User not found.' };
+  setState(s => ({ ...s, currentUser: user }));
+  return { user };
+}
+
+export function demoSignup({ email, password, full_name, role, location, description, skills, interests, availability }) {
+  const state = getState();
+  if (state.users.find(u => u.email === email)) return { error: 'An account with this email already exists.' };
+
+  const userId = 'user-' + uid();
+  const newUser = { id: userId, full_name, email, role, location };
+
+  const updates = {
+    users: [...state.users, newUser],
+    passwords: { ...state.passwords, [email]: password },
+    currentUser: newUser,
+  };
+
+  if (role === 'organization') {
+    const orgId = 'org-' + uid();
+    updates.organizations = [...state.organizations, {
+      id: orgId, user_id: userId,
+      name: full_name, description: description || '', location, contact_email: email,
+    }];
+  } else {
+    const volId = 'vol-' + uid();
+    updates.volunteer_profiles = [...state.volunteer_profiles, {
+      id: volId, user_id: userId,
+      skills: skills || [],
+      interests: interests || [],
+      availability: availability || '',
+      confirmed_hours: 0,
+    }];
+  }
+
+  setState(s => ({ ...s, ...updates }));
+  return { user: newUser };
+}
+
+export function demoLogout() {
+  setState(s => ({ ...s, currentUser: null }));
+}
+
+export function demoCurrentUser() {
+  return getState().currentUser;
 }
 
 // ── Events ────────────────────────────────────────────────────────────────────
@@ -431,7 +491,9 @@ export function demoUpdateProfile(userId, data) {
   const profiles = state.volunteer_profiles.map(p =>
     p.user_id === userId ? { ...p, ...data.profile } : p
   );
-  setState({ ...state, users, volunteer_profiles: profiles });
+  const updated = { ...state, users, volunteer_profiles: profiles };
+  if (state.currentUser?.id === userId) updated.currentUser = { ...state.currentUser, ...data.user };
+  setState(updated);
   return { success: true };
 }
 
