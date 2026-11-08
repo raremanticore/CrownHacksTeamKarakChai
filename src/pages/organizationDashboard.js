@@ -507,7 +507,19 @@ async function loadEventRegistrations(eventId) {
   if (!container) return;
   container.innerHTML = `<div class="loading-container"><div class="spinner"></div></div>`;
 
-  const regs = await getEventRegistrations(eventId, orgUser.id);
+  let regs;
+  try {
+    regs = await getEventRegistrations(eventId, orgUser.id);
+  } catch (error) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">⚠️</div>
+        <h3>Unable to load registrations</h3>
+        <p>${escapeHtml(error.message || 'Check your Supabase policies and try again.')}</p>
+      </div>
+    `;
+    return;
+  }
 
   if (!regs.length) {
     container.innerHTML = `

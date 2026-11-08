@@ -156,10 +156,15 @@ export async function getEventRegistrations(eventId, orgUserId) {
   if (!isSupabaseConfigured()) return demoGetEventRegistrations(eventId, orgUserId);
 
   const sb = getSupabase();
-  const { data } = await sb.from('event_registrations')
+  const { data, error } = await sb.from('event_registrations')
     .select('*, users(full_name, email, location), volunteer_profiles(skills, confirmed_hours)')
     .eq('event_id', eventId)
     .neq('status', 'cancelled');
+
+  if (error) {
+    console.error('VOLO: Unable to load event registrations.', error);
+    throw new Error(error.message);
+  }
 
   return (data || []).map(r => ({ ...r, volunteer: r.users, profile: r.volunteer_profiles }));
 }

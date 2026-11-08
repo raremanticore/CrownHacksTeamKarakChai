@@ -22,6 +22,14 @@ ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can read own row" ON public.users
   FOR SELECT USING (auth.uid() = id);
 
+CREATE POLICY "Organizations can read volunteer users" ON public.users
+  FOR SELECT USING (
+    role = 'volunteer' AND EXISTS (
+      SELECT 1 FROM public.organizations
+      WHERE organizations.user_id = auth.uid()
+    )
+  );
+
 CREATE POLICY "Users can create own row" ON public.users
   FOR INSERT WITH CHECK (auth.uid() = id);
 
